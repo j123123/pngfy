@@ -19,6 +19,7 @@ p_temp_dir="/tmp"          # dirpath. use '.' for current.
 
 used_binaries="dd cat convert identify sed awk gzip md5sum";
 
+# checks if specified binary existed as executable
 in_system() {	
 (
   program_name="$1";
@@ -37,6 +38,7 @@ in_system() {
 )
 };
 
+# checks if binaries from used_binaries variable are accessable for executing
 init() {
 (
   progs="";
@@ -50,6 +52,8 @@ init() {
 )
 };
 
+
+# verbose message
 verb_message() {
 (
   message="$@";
@@ -59,6 +63,9 @@ verb_message() {
 )
 };
 
+
+# parsing args. not using getopts because i want long options. not using getopt
+# because it sucks
 parse_args() {
   if [ ! "$1" ]; then
     set -- "--help";
@@ -149,6 +156,7 @@ parse_args() {
   fi;
 };
 
+# let's call this easter egg
 help() {
 (
   printf "%s" "\
@@ -177,6 +185,8 @@ encoder/decoder for files into png
 )
 };
 
+
+# parsing header from bla1|bla2|bla3|bla4 to var1=bla1; var2=bla2; etc; view
 parse_header() {
   header="$1";
   set_fields() {
@@ -264,6 +274,8 @@ $0: header params: $header_params_length
   unset header_params_length;
 };
 
+
+# encode file to image
 encode_file() {
 (
   input_file="$1";
@@ -436,6 +448,7 @@ gzip md5..........: $header_gzip_md5
 )
 };
 
+# read header from file
 read_header() {
   header="$1";
 
@@ -471,6 +484,7 @@ $0: file length.......: $file_length
 };
 
 
+# decode image to file
 decode_file() {
 (
   input_file="$1";
@@ -589,6 +603,7 @@ $verb_info_message
 )
 };
 
+# show info from header
 show_info_file() {
 (
   input_file="$1";
@@ -653,6 +668,7 @@ $verb_info_message
 )
 };
 
+# encode to image from file with header
 format_encode() {
 (
   input_file="$1";
@@ -730,6 +746,7 @@ $verb_info_message
 )
 };
 
+# decode image to file with header
 format_decode() {
 (
   input_file="$1";
@@ -811,6 +828,7 @@ $verb_info_message
 )
 };
 
+# check if file with header is formed right
 format_check() {
 (
   input_file="$1";
@@ -862,6 +880,7 @@ $verb_info_message
 )
 };
 
+# chickens
 main() {
   init || { return "$?"; };
   parse_args "$@" || { return "$?"; };
@@ -878,6 +897,7 @@ main() {
 )
 };
 
+# six lines of real code
 main "$@" 
 ec="$?";
 for suffix in "temp" "res" "stdin" "gzip"; do
