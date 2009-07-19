@@ -1,5 +1,3 @@
-#  Main page
-
 = Idea =
 {{{
 head -c 1440000 /dev/urandom > file
