@@ -6,6 +6,27 @@ convert -depth 8 png:out.png rgb:file2
 md5sum file*
 }}}
 
+=Abstract=
+{{{
+         Input File
+             |
+             V
+  Input File gziped or not
+             |
+             V
+   Input File with header
+             |
+             V
+PNG Image with integrated file
+             |
+             V
+  Extracted file with header
+             |
+             V
+     Original Input File
+
+}}}
+
 =Header format=
 _<header length>_|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]_<file data>_`[`_trailing zeros_`]`
 
