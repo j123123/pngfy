@@ -1,5 +1,5 @@
 #summary Main page, specification
-
+#sidebar TableOfContents
 = Idea =
 {{{
 head -c 1440000 /dev/urandom > file
