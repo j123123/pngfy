@@ -8,22 +8,22 @@ md5sum file*
 
 =Abstract=
 {{{
-         Input File
-             |
-             V
-  Input File gziped or not
-             |
-             V
-   Input File with header
-             |
-             V
-PNG Image with integrated file
-             |
-             V
-  Extracted file with header
-             |
-             V
-     Original Input File
+                  Input File
+                      |
+                      V
+           Input File gziped or not
+                      |
+                      V
+            Input File with header
+                      |
+                      V
+   PNG Image made from Input File with header
+                      |
+                      V
+           Extracted file with header
+                      |
+                      V
+              Original Input File
 
 }}}
 
