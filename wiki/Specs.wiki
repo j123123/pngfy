@@ -7,7 +7,7 @@ md5sum file*
 }}}
 
 =Header format=
-_<header length>_|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]_<file data>_[_trailing zeros_]
+_<header length>_|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]_<file data>_`[`_trailing zeros_`]`
 
   * _<header length>_: length of header including _<header length>_ field length
   * _<file name>_: basename. No path.
