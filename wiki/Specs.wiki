@@ -10,6 +10,7 @@ md5sum file*
 
 =Header format=
 _<header length>_|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]_<file data>_
+_<file name>_: basename. No path.
 _<gzip flag>_: '1' or '0'. If '0' - there is no _|gzip md5_ field.
 Between last md5 and file data is nothing; data writing right after header.
 
@@ -31,7 +32,7 @@ This is not an any real language, so i can't prove it's working and there might 
 
 ==Encode==
 {{{
-$input_file_name="./file.txt";
+$input_file_name=basename("./file.txt");
 $input_file=read($input_file_name);
 $output_file="./image.png";
 $tempfile="./tmp";
@@ -107,7 +108,7 @@ delete($tempfile);
 
 ==Decode==
 {{{
-$input_file="./image.png";
+$input_file="image.png";
 $temp="";
 
 $depth=get_image_depth(input_file);
