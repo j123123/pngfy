@@ -168,4 +168,4 @@ write($output_file,$temp);
 
 =Implementations=
   * http://geekly.info/static/p2f/
-  * http://code.google.com/p/pngfy/source/browse/trunk/pngfy
+  * http://code.google.com/p/pngfy/source/browse/trunk/implementations/shell/posix-v7/pngfy
