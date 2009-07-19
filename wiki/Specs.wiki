@@ -46,8 +46,8 @@ If not gziped - just as is.
 If gziped - without gzip timestamp.
 
 =Image file format=
-* Color depth: 8 bit
-* Bytes per pixel: 3 byte
+  * Color depth: 8 bit
+  * Bytes per pixel: 3 byte
 
 Depth 16 and bpp 3 is works too; produce less pixels with more size and better gzipable, but not all languages can handle this.
 
