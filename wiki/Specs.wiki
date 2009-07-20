@@ -59,7 +59,7 @@ Depth 16 and bpp 3 is works too; produce less pixels with more size and better g
   * http://code.google.com/p/pngfy/source/browse/#svn/trunk/examples/example_2
   * http://code.google.com/p/pngfy/source/browse/#svn/trunk/examples/example_3
 
-=Algorythm DEPRECATED=
+=Algorythm=
 This is not an any real language, so i can't prove it's working and there might be a bunch of mistakes.So, instead, you'd better to see the real perl implementation: http://geekly.info/static/p2f/
 
 ==Encode==
@@ -85,19 +85,11 @@ if ($gzip) {
 /*
   leading pipe is for adding header's length
 */
-$header="|".$input_file_name."|".$input_file->length."|".$gzip_flag."|".$input_file_md5;
+$header="pngfy|".$input_file_name."|".$input_file->length."|".$gzip_flag."|".$input_file_md5;
 if ($gzip) {
   $header.="|".$gzip_md5;
 }
-
-/*
-  length_plus_length_length() is a function, which calculates string length and
-  length of numbers representing string's length.
-  example:
-    length_plus_length_length("-bc") is 4 ("4-bc").
-    length_plus_length_length("-12345678") is 11 ("11-12345678").
-*/
-$header=length_plus_length_length($header).$header;
+$header.="\x0";
 
 /*
   write(<output_file>,<input string>[,number of bytes to write])
@@ -121,13 +113,13 @@ if (( $tempfile->length % $bpp ) != 0) {
   finding divisors with least sum, product of which is equal 
   to number is not rational due to slowness and prime numbers
 */
-$x=$y=sqrt(($tempfile->size / $bpp)); 
-while (( $x * $y ) < ($tempfile->size / $bpp)) { 
+$x=$y=sqrt(($tempfile->length / $bpp)); 
+while (( $x * $y ) < ($tempfile->length / $bpp)) { 
   $x++; 
 }
 
 if ($x > $y) {
-  $missing_bytes=((($x * $y) - ($tempfile->size / $bpp)) * $bpp);
+  $missing_bytes=((($x * $y) - ($tempfile->length / $bpp)) * $bpp);
   write($tempfile,"\x0" x $missing_bytes);
 }
   
@@ -147,9 +139,7 @@ $depth=get_image_depth(input_file);
 $header_length=0;
 
 // fscanf and read moving the pointer, so we don't need to mind offsets: we continue right where we stopped
-fscanf($input_file,"%d",$header_length);
-read($input_file,1); // pipe
-$header=read($input_file,$header_length);
+fscanf($input_file,"%s",$header);
 ($output_file, $data_length, $gzip_flag, $file_md5, $gzip_md5)=split("|",$header);
 $temp=read($input_file,$data_length);
 
@@ -167,6 +157,6 @@ if ($file_md5 != md5($temp)) {
 write($output_file,$temp);
 }}}
 
-=Implementations DEPRECATED=
+=Implementations=
   * http://geekly.info/static/p2f/
-  * http://code.google.com/p/pngfy/source/browse/trunk/implementations/shell/posix-v7/pngfy
+  * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/shell/posix-v7/pngfy deprecated]
