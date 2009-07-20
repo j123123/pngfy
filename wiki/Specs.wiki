@@ -19,10 +19,10 @@ md5sum file*
                   Input File                  // stage 0
                       |                      
                       V                       
-           Input File gziped or not           //
-                      |                       // stage 1
-                      V                       //
-            Input File with header            //
+           Input File gziped or not           
+                      |                       
+                      V                       
+            Input File with header            // stage 1
                       |                      
                       V                      
    PNG Image made from Input File with header // stage 2
@@ -31,6 +31,9 @@ md5sum file*
            Extracted file with header         // stage 1(3)
                       |
                       V
+          Input File ungziped or not           
+                      |                       
+                      V                       
               Original Input File             // stage 0(4)
 
 }}}
