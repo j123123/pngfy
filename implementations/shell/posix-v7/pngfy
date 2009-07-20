@@ -1,5 +1,5 @@
 #!/bin/sh
-c_version="1.8";            # constant
+c_version="1.9";            # constant
 c_standart="1r.4"           # constant
 c_header_signature="pngfy"; # constant
 n_bpp=3;                    # bytes used to store one pixel
@@ -108,8 +108,10 @@ parse_args() {
       printf "%s\n" "$0: <stdin>: when reading from stdin, -e or -d must be specified" 1>&2;
       return 1;
     fi;
-    if [ ! "$p_output_file" ]; then
-      p_output_file="-";
+    if [ "$l_mode" = "encode" ]; then
+      if [ ! "$p_output_file" ]; then
+        p_output_file="-";
+      fi;
     fi;
     l_input_stdin="true";
     l_remove="true";
@@ -505,7 +507,6 @@ decode_file() {
   fi;
 
   res_file="$p_temp_dir/pngfy-$$-res";
-
   identify "png:$input_file" 2>/dev/null >/dev/null || {
     printf "%s\n" "$0: $input_file: not a valid png file";
     return 1;
