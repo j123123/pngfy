@@ -1,6 +1,6 @@
 #!/bin/sh
 c_version="1.8";            # constant
-c_standart="1 rev. 4";      # constant
+c_standart="1r.4"           # constant
 c_header_signature="pngfy"; # constant
 n_bpp=3;                    # bytes used to store one pixel
 n_depth=8;                  # image colors depth
@@ -161,7 +161,7 @@ parse_args() {
 help() {
 (
   printf "%s" "\
-encoder/decoder for files into png v$c_version for pngfy v$c_standart
+encoder/decoder for files into png v$c_version for pngfy version $c_standart
   USAGE: $0 [OPTIONS] <input file> [output file]
     modes:
     -e  --encode                    encode file to image
