@@ -44,7 +44,11 @@ Extracting File.ext with header from PNG image  // stage 2
 
 }}}
 
-=Header format=
+=File data format=
+If not gziped - just as is.
+If gziped - without gzip timestamp in order to have same md5's for images maked in different time from same files.
+
+=File with header format=
 pngfy|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]_`<null>`__<file data>_`[`_trailing zeros_`]`
 
   * pngfy: header signature, 70 6e 67 66 79 in hex.
@@ -56,10 +60,6 @@ pngfy|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]
   * _`<`null`>`_: null-string terminator; symbol \x00 in hex, determines end of header.
   * _<file data>_: writing right after header. No spaces or delimiters.
   * `[`_trailing zeros_`]`: writing only if _<header length>_ + _<file data length>_ is not dividable by number of bytes per one image pixel's or for adjusting to specific image size.
-
-=File data format=
-If not gziped - just as is.
-If gziped - without gzip timestamp.
 
 =Image file format=
   * Color depth: 8 bit
