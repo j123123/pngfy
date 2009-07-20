@@ -1,7 +1,7 @@
 #summary Main page, specification
 
 {{{
-Revision: 4
+Version 1 rev. 4
 }}}
 
 <wiki:toc max_depth="2" /> 
