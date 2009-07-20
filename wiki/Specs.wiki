@@ -34,13 +34,13 @@ md5sum file*
 =Header format=
 pngfy|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]_`<null>`__<file data>_`[`_trailing zeros_`]`
 
-  * _<header length>_: length of header including _<header length>_ field length
+  * pngfy: header signature, 70 6e 67 66 79 in hex.
   * _<file name>_: basename. No path.
   * _<file data length>_: encoding file length
   * _<gzip flag>_: '1' or '0'
   * _<data md5>_: md5 hash of file
   * [|_gzip md5_]: writing only if _<gzip flag>_ == 1. if _<gzip flag>_ == 0.
-  * _`<`null`>`_: null-string terminator; symbol \x00 in hex.
+  * _`<`null`>`_: null-string terminator; symbol \x00 in hex, determines end of header.
   * _<file data>_: writing right after header. No spaces or delimiters.
   * `[`_trailing zeros_`]`: writing only if _<header length>_ + _<file data length>_ is not dividable by number of bytes per one image pixel's or for adjusting to specific image size.
 
@@ -59,7 +59,7 @@ Depth 16 and bpp 3 is works too; produce less pixels with more size and better g
   * http://code.google.com/p/pngfy/source/browse/#svn/trunk/examples/example_2
   * http://code.google.com/p/pngfy/source/browse/#svn/trunk/examples/example_3
 
-=Algorythm=
+=Algorythm DEPRECATED=
 This is not an any real language, so i can't prove it's working and there might be a bunch of mistakes.So, instead, you'd better to see the real perl implementation: http://geekly.info/static/p2f/
 
 ==Encode==
@@ -167,6 +167,6 @@ if ($file_md5 != md5($temp)) {
 write($output_file,$temp);
 }}}
 
-=Implementations=
+=Implementations DEPRECATED=
   * http://geekly.info/static/p2f/
   * http://code.google.com/p/pngfy/source/browse/trunk/implementations/shell/posix-v7/pngfy
