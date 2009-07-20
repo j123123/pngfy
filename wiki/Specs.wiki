@@ -16,22 +16,22 @@ md5sum file*
 
 =Abstract=
 {{{
-                  Input File
+                  Input File                  // stage 0
+                      |                      
+                      V                       
+           Input File gziped or not           //
+                      |                       // stage 1
+                      V                       //
+            Input File with header            //
+                      |                      
+                      V                      
+   PNG Image made from Input File with header // stage 2(3)
+                      |                      
+                      V
+           Extracted file with header         // stage 1(4)
                       |
                       V
-           Input File gziped or not
-                      |
-                      V
-            Input File with header
-                      |
-                      V
-   PNG Image made from Input File with header
-                      |
-                      V
-           Extracted file with header
-                      |
-                      V
-              Original Input File
+              Original Input File             // stage 0(5)
 
 }}}
 
