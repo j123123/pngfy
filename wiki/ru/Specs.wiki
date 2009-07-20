@@ -1,5 +1,9 @@
 #summary Main page, specification
 
+{{{
+Version 1 rev. 4
+}}}
+
 <wiki:toc max_depth="2" /> 
 
 = Idea =
@@ -12,34 +16,35 @@ md5sum file*
 
 =Abstract=
 {{{
-                  Input File
+                  Input File                  // stage 0
+                      |                      
+                      V                       
+           Input File gziped or not           //
+                      |                       // stage 1
+                      V                       //
+            Input File with header            //
+                      |                      
+                      V                      
+   PNG Image made from Input File with header // stage 2
+                      |                      
+                      V
+           Extracted file with header         // stage 1(3)
                       |
                       V
-           Input File gziped or not
-                      |
-                      V
-            Input File with header
-                      |
-                      V
-   PNG Image made from Input File with header
-                      |
-                      V
-           Extracted file with header
-                      |
-                      V
-              Original Input File
+              Original Input File             // stage 0(4)
 
 }}}
 
 =Header format=
-_<header length>_|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]_<file data>_`[`_trailing zeros_`]`
+pngfy|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]_`<null>`__<file data>_`[`_trailing zeros_`]`
 
-  * _<header length>_: length of header including _<header length>_ field length
+  * pngfy: header signature, 70 6e 67 66 79 in hex.
   * _<file name>_: basename. No path.
   * _<file data length>_: encoding file length
   * _<gzip flag>_: '1' or '0'
   * _<data md5>_: md5 hash of file
   * [|_gzip md5_]: writing only if _<gzip flag>_ == 1. if _<gzip flag>_ == 0.
+  * _`<`null`>`_: null-string terminator; symbol \x00 in hex, determines end of header.
   * _<file data>_: writing right after header. No spaces or delimiters.
   * `[`_trailing zeros_`]`: writing only if _<header length>_ + _<file data length>_ is not dividable by number of bytes per one image pixel's or for adjusting to specific image size.
 
@@ -59,7 +64,7 @@ Depth 16 and bpp 3 is works too; produce less pixels with more size and better g
   * http://code.google.com/p/pngfy/source/browse/#svn/trunk/examples/example_3
 
 =Algorythm=
-This is not an any real language, so i can't prove it's working and there might be a bunch of mistakes.So, instead, you'd better to see the real perl implementation: http://geekly.info/static/p2f/
+This is not an any real language, so i can't prove it's working and there might be a bunch of mistakes.So, instead, you'd better to see the real perl implementation: http://os.anime-union.org/pngfy/
 
 ==Encode==
 {{{
@@ -84,19 +89,11 @@ if ($gzip) {
 /*
   leading pipe is for adding header's length
 */
-$header="|".$input_file_name."|".$input_file->length."|".$gzip_flag."|".$input_file_md5;
+$header="pngfy|".$input_file_name."|".$input_file->length."|".$gzip_flag."|".$input_file_md5;
 if ($gzip) {
   $header.="|".$gzip_md5;
 }
-
-/*
-  length_plus_length_length() is a function, which calculates string length and
-  length of numbers representing string's length.
-  example:
-    length_plus_length_length("-bc") is 4 ("4-bc").
-    length_plus_length_length("-12345678") is 11 ("11-12345678").
-*/
-$header=length_plus_length_length($header).$header;
+$header.="\x0";
 
 /*
   write(<output_file>,<input string>[,number of bytes to write])
@@ -120,13 +117,13 @@ if (( $tempfile->length % $bpp ) != 0) {
   finding divisors with least sum, product of which is equal 
   to number is not rational due to slowness and prime numbers
 */
-$x=$y=sqrt(($tempfile->size / $bpp)); 
-while (( $x * $y ) < ($tempfile->size / $bpp)) { 
+$x=$y=sqrt(($tempfile->length / $bpp)); 
+while (( $x * $y ) < ($tempfile->length / $bpp)) { 
   $x++; 
 }
 
 if ($x > $y) {
-  $missing_bytes=((($x * $y) - ($tempfile->size / $bpp)) * $bpp);
+  $missing_bytes=((($x * $y) - ($tempfile->length / $bpp)) * $bpp);
   write($tempfile,"\x0" x $missing_bytes);
 }
   
@@ -146,9 +143,12 @@ $depth=get_image_depth(input_file);
 $header_length=0;
 
 // fscanf and read moving the pointer, so we don't need to mind offsets: we continue right where we stopped
-fscanf($input_file,"%d",$header_length);
-read($input_file,1); // pipe
-$header=read($input_file,$header_length);
+if (read($input_file,5) != "pngfy") {
+  alert("not a pngfy file\n");
+  return 1;
+}
+read($input_file,1); //pipe
+fscanf($input_file,"%s",$header); // reads to header's string null-terminator
 ($output_file, $data_length, $gzip_flag, $file_md5, $gzip_md5)=split("|",$header);
 $temp=read($input_file,$data_length);
 
@@ -167,5 +167,5 @@ write($output_file,$temp);
 }}}
 
 =Implementations=
-  * http://geekly.info/static/p2f/
-  * http://code.google.com/p/pngfy/source/browse/trunk/pngfy
+  * http://os.anime-union.org/pngfy/
+  * http://code.google.com/p/pngfy/source/browse/trunk/implementations/shell/posix-v7/pngfy
