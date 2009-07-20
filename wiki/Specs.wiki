@@ -32,7 +32,7 @@ md5sum file*
 }}}
 
 =Header format=
-pngfy|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]_<zero><file data>_`[`_trailing zeros_`]`
+pngfy|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]_`<null>`__<file data>_`[`_trailing zeros_`]`
 
   * _<header length>_: length of header including _<header length>_ field length
   * _<file name>_: basename. No path.
@@ -40,7 +40,7 @@ pngfy|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]
   * _<gzip flag>_: '1' or '0'
   * _<data md5>_: md5 hash of file
   * [|_gzip md5_]: writing only if _<gzip flag>_ == 1. if _<gzip flag>_ == 0.
-  * _<zero>_: zero-string terminator; symbol \x00 in hex.
+  * _`<`null`>`_: null-string terminator; symbol \x00 in hex.
   * _<file data>_: writing right after header. No spaces or delimiters.
   * `[`_trailing zeros_`]`: writing only if _<header length>_ + _<file data length>_ is not dividable by number of bytes per one image pixel's or for adjusting to specific image size.
 
