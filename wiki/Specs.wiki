@@ -1,5 +1,5 @@
 #summary Main page, specification
-111111111111
+
 {{{
 Version 1 rev. 4
 }}}
