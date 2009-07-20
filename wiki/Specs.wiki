@@ -139,7 +139,12 @@ $depth=get_image_depth(input_file);
 $header_length=0;
 
 // fscanf and read moving the pointer, so we don't need to mind offsets: we continue right where we stopped
-fscanf($input_file,"%s",$header);
+if (read($input_file,5) != "pngfy") {
+  alert("not a pngfy file\n");
+  return 1;
+}
+read($input_file,1); //pipe
+fscanf($input_file,"%s",$header); // reads to header's string null-terminator
 ($output_file, $data_length, $gzip_flag, $file_md5, $gzip_md5)=split("|",$header);
 $temp=read($input_file,$data_length);
 
