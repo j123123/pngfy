@@ -64,7 +64,7 @@ Depth 16 and bpp 3 is works too; produce less pixels with more size and better g
   * http://code.google.com/p/pngfy/source/browse/#svn/trunk/examples/example_3
 
 =Algorythm=
-This is not an any real language, so i can't prove it's working and there might be a bunch of mistakes.So, instead, you'd better to see the real perl implementation: http://geekly.info/static/p2f/
+This is not an any real language, so i can't prove it's working and there might be a bunch of mistakes.So, instead, you'd better to see the real perl implementation: http://os.anime-union.org/pngfy/
 
 ==Encode==
 {{{
@@ -167,5 +167,5 @@ write($output_file,$temp);
 }}}
 
 =Implementations=
-  * http://geekly.info/static/p2f/
+  * http://os.anime-union.org/pngfy/
   * http://code.google.com/p/pngfy/source/browse/trunk/implementations/shell/posix-v7/pngfy
