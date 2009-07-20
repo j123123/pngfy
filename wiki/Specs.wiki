@@ -69,9 +69,9 @@ pngfy|_<file name>_|_<file data length>_|_<gzip flag>_|_<data md5>_[|_gzip md5_]
 Depth 16 and bpp 3 is works too; produce less pixels with more size and better gzipable, but not all languages can handle this.
 
 = Examples =
-  * http://code.google.com/p/pngfy/source/browse/#svn/trunk/examples/example_1
-  * http://code.google.com/p/pngfy/source/browse/#svn/trunk/examples/example_2
-  * http://code.google.com/p/pngfy/source/browse/#svn/trunk/examples/example_3
+  * http://code.google.com/p/pngfy/source/browse/trunk/examples/example_1
+  * http://code.google.com/p/pngfy/source/browse/trunk/examples/example_2
+  * http://code.google.com/p/pngfy/source/browse/trunk/examples/example_3
 
 =Algorythm=
 This is not an any real language, so i can't prove it's working and there might be a bunch of mistakes.So, instead, you'd better to see the real perl implementation: http://os.anime-union.org/pngfy/
@@ -177,10 +177,10 @@ write($output_file,$temp);
 }}}
 
 =Implementations=
-  * [http://code.google.com/p/pngfy/source/browse/#svn/trunk/implementations/c C]
-  * [http://code.google.com/p/pngfy/source/browse/#svn/trunk/implementations/perl perl]
-  * [http://code.google.com/p/pngfy/source/browse/#svn/trunk/implementations/javascript javascript]
-  * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/shell/posix-v7/pngfy posix v7 sh]
+  * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/c C]
+  * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/perl perl]
+  * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/javascript javascript]
+  * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/shell/posix-v7 posix v7 sh]
 
 =Links=
   * http://os.anime-union.org/pngfy/
