@@ -1,5 +1,4 @@
 #!/bin/sh
-
 genexamples() {
   pngfy "$dir/$file" -ef "$dir/stage1-as-is_formed_input_file.txt";
   pngfy "$dir/$file" -ef -z "$dir/stage1-gziped_formed_input_file.txt";
