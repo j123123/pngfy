@@ -1,0 +1,20 @@
+#!/bin/sh
+
+genexamples() {
+  pngfy "$dir/$file" -ef "$dir/stage1-as-is_formed_input_file.txt";
+  pngfy "$dir/$file" -ef -z "$dir/stage1-gziped_formed_input_file.txt";
+  pngfy "$dir/$file" -e "$dir/stage2-as-is_png_image.png";
+  pngfy "$dir/$file" -e -z "$dir/stage2-gziped_png_image.png";
+}
+
+dir=example_1;
+file="stage0_input_file.txt";
+genexamples;
+
+dir="example_2";
+file="stage0_input_file.jpg";
+genexamples;
+
+dir="example_3";
+file="stage0_input_file.jpg";
+genexamples;
