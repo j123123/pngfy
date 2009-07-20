@@ -46,6 +46,7 @@ Extracting File.ext with header from PNG image  // stage 2
 
 =File data format=
 If not gziped - just as is.
+
 If gziped - without gzip timestamp in order to have same md5's for images maked in different time from same files.
 
 =File with header format=
