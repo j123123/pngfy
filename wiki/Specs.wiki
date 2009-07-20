@@ -177,7 +177,9 @@ write($output_file,$temp);
 }}}
 
 =Implementations=
+<wiki:comment>
   * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/c C]
+</wiki:comment>
   * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/perl perl]
   * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/javascript javascript]
   * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/shell/posix-v7 posix v7 sh]
