@@ -1,21 +1,23 @@
 #!/bin/sh
-n_bpp=3;                   # bytes used to store one pixel
-n_depth=8;                 # image colors depth
-l_mode="";                 # "encode","decode","info","format-check","format-encode","format-decode","help"
-l_format="false";          # "true","false"
-l_gzip="false";            # "true","false"
-l_input_stdin="false";     # "true","false"
-l_output_stdin="false";    # "true","false"
-l_verbose="false";         # "true","false"
-l_bpp_changed="false"      # "true","false"
-l_depth_changed="false"    # "true","false"
-l_ignore_length="false"    # "true","false"
-l_remove="false";          # "true","false"
-s_special_header="";       # user-specified header
-p_encoded_file_name="";    # filename
-p_input_file="";           # filepath
-p_output_file="";          # filepath
-p_temp_dir="/tmp"          # dirpath. use '.' for current.
+c_version="1.8";            # constant
+c_standart="1 rev. 4";      # constant
+c_header_signature="pngfy"; # constant
+n_bpp=3;                    # bytes used to store one pixel
+n_depth=8;                  # image colors depth
+l_mode="";                  # "encode","decode","info","format-check","format-encode","format-decode","help"
+l_format="false";           # "true","false"
+l_gzip="false";             # "true","false"
+l_input_stdin="false";      # "true","false"
+l_output_stdin="false";     # "true","false"
+l_verbose="false";          # "true","false"
+l_bpp_changed="false"       # "true","false"
+l_depth_changed="false"     # "true","false"
+l_remove="false";           # "true","false"
+s_special_header="";        # user-specified header
+p_encoded_file_name="";     # filename
+p_input_file="";            # filepath
+p_output_file="";           # filepath
+p_temp_dir="/tmp"           # dirpath. use '.' for current.
 
 used_binaries="dd cat convert identify sed awk gzip md5sum";
 
@@ -84,7 +86,6 @@ parse_args() {
       ("-z"|"--gzip")  l_gzip="true"; ;;
       ("-v"|"--verbose")  l_verbose="true"; ;;
       ("-r"|"--remove")  l_remove="true"; ;;
-      ("-w"|"--ignore-length")  l_ignore_length="true"; ;;
       ("-b"|"-bpp"|"--byte-per-pixel") l_bpp_changed="true"; n_bpp="$(printf "%d" "$2" 2>/dev/null)"; [ "$2" ] && { shift; }; ;;
       ("-t"|"--depth") l_depth_changed="true"; n_depth="$(printf "%d" "$2" 2>/dev/null)"; [ "$2" ] && { shift; }; ;;
       ("-n"|"--name") p_encoded_file_name="$2"; [ "$2" ] && { shift; }; ;;
@@ -160,7 +161,7 @@ parse_args() {
 help() {
 (
   printf "%s" "\
-encoder/decoder for files into png
+encoder/decoder for files into png v$c_version for pngfy v$c_standart
   USAGE: $0 [OPTIONS] <input file> [output file]
     modes:
     -e  --encode                    encode file to image
@@ -175,7 +176,6 @@ encoder/decoder for files into png
     -v  --verbose                   display additional information messages
     -r  --remove                    remove input file
     -z  --gzip                      pass encoding/decoding files throigh gzip
-    -w  --ignore-length             ignore wrong header length
     -n  --name            <string>  specify encoded file name
     -s  --special-header  <string>  specify special header
     -b  --byte-per-pixel  <int>     bytes per pixel
@@ -190,13 +190,13 @@ encoder/decoder for files into png
 parse_header() {
   header="$1";
   set_fields() {
-    header_length="$(printf "%s" "$1" | sed -n '1p')";
-    if [ "$l_ignore_length" = "false" ] && [ "${#header}" -ne "$header_length" ]; then
-      printf "%s\n" "$0: $input_file: header length is invalid";
+    header_length="$((${#header}+1))";
+    header_signature="$(printf "%s" "$1" | sed -n '1p')";
+    if [ "$header_signature" != "$c_header_signature" ]; then
+      printf "%s\n" "$0: $input_file: not valid header signature";
       verb_message "\
-$0: header............: $header
-$0: header length.....: $header_length
-$0: header real length: ${#header}
+$0: header..........: $header
+$0: header signature: $header_signature
 ";
       return 1;
     fi;
@@ -336,18 +336,11 @@ encoding file '$verb_input_file_name' to '$verb_output_file_name'
 
     header_data_length="$(wc -c "$input_file" | awk '{printf "%s", $1}')";
 
-    header="|$header_file_name|$header_data_length|$header_is_gzip|$header_data_md5";
+    header="pngfy|$header_file_name|$header_data_length|$header_is_gzip|$header_data_md5";
     if [ "$header_is_gzip" = "1" ]; then
       header="$header|$header_gzip_md5";
     fi;
-
-    header_length="$(printf "%s" "$header" | wc -c)";
-    header_length_number_length="$(printf "%s" "$header_length" | wc -c)";  
-    if [ "$header_length_number_length" -lt "$(printf "%d" "$(($header_length + $header_length_number_length))" | wc -c)" ]; then
-      header_length_number_length="$(($header_length_number_length + 1))";
-    fi;
-    header_length="$(($header_length + $header_length_number_length))";
-    header="${header_length}${header}";
+    header_length="$((${#header}+1))";
   else
     header="$s_special_header";
     parse_header "$header" || {
@@ -364,9 +357,9 @@ encoding file '$verb_input_file_name' to '$verb_output_file_name'
 
 # tmp
 
-  printf "%s" "$header" | cat - "$input_file" > "$tmp_file";
+  printf "%s\x00" "$header" | cat - "$input_file" > "$tmp_file";
 
-  tmp_length="$(($header_length + $header_data_length))";
+  tmp_length="$(wc -c "$tmp_file" | awk '{printf "%s", $1}')";
 
 
   if [ "$header_is_gzip" = "1" ]; then
@@ -453,17 +446,16 @@ read_header() {
   header="$1";
 
   if [ ! "$header" ]; then
-    header_length="$(cat "$res_file" | sed -n '1{s/|/\n/1;p;};' | sed -n '1{p;};' | awk '{printf "%d", $1}')";
- 
-    if [ "$header_length" -lt 39 ]; then
-      printf "%s\n" "$0: $input_file: not a valid file: header is too short";
+    header_signature="$(dd if="$res_file" ibs=1 count=5 2>/dev/null)";
+    if [ "$header_signature" != "$c_header_signature" ]; then
+      printf "%s\n" "$0: $input_file: not valid header signature";
       verb_message "\
-$0: header length: $header_length
+$0: header..........: $header
+$0: header signature: $header_signature
 ";
       return 1;
     fi;
-
-    header="$(dd if="$res_file" ibs=1 count="$header_length" 2>/dev/null)";
+    header="$(cat "$res_file" | ( read header; printf "%s" "$header"; ))";
   fi;
 
   parse_header "$header" || {
