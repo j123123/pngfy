@@ -1,0 +1,4 @@
+Userscript works only in conjunction with bookmarklet:
+<a href="javascript:(function(){if(typeof P2FHelper!='undefined'){P2FHelper.toggle();}})();;">Toggle P2F</a>
+
+You'll need browser with support for canvas
