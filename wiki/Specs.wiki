@@ -177,8 +177,10 @@ write($output_file,$temp);
 }}}
 
 =Implementations=
-  * http://os.anime-union.org/pngfy/
   * [http://code.google.com/p/pngfy/source/browse/#svn/trunk/implementations/c C]
   * [http://code.google.com/p/pngfy/source/browse/trunk/implementations/shell/posix-v7/pngfy posix v7 sh]
   * [http://code.google.com/p/pngfy/source/browse/#svn/trunk/implementations/javascript javascript]
   * [http://code.google.com/p/pngfy/source/browse/#svn/trunk/implementations/perl perl]
+
+=Links=
+  * http://os.anime-union.org/pngfy/
