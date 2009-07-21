@@ -23,7 +23,7 @@ char *basename (const char *name)
   const char *base;
 #if defined (HAVE_DOS_BASED_FILE_SYSTEM)
     /* Skip over the disk name in MSDOS pathnames. */
-    if (ISALPHA (name[0]) && name[1] == ':') 
+    if (isalpha(name[0]) && name[1] == ':') 
         name += 2;
 #endif
     for (base = name; *name; name++)
