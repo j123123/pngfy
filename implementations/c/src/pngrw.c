@@ -135,7 +135,7 @@ int write_png(const char *file_name,const unsigned char *rgba,int width,int heig
   png_byte **row_pointers=(png_byte**)malloc(height*sizeof(png_byte*));
   int i;
   for(i=0;i<height;i++)
-    row_pointers[i]=(png_byte*)(rgba+i*width*4);
+    row_pointers[i]=(png_byte*)(rgba+i*width*3);
 
   png_write_image(png_ptr,row_pointers);
   png_write_end(png_ptr, info_ptr);
