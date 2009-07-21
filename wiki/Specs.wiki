@@ -1,4 +1,5 @@
 #summary Main page, specification
+#labels featured
 
 {{{
 Version 1 rev. 4
