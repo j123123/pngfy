@@ -1,5 +1,5 @@
 #!/bin/sh
-c_version="1.10";            # constant
+c_version="1.10";           # constant
 c_standart="1r.4"           # constant
 c_header_signature="pngfy"; # constant
 n_bpp=3;                    # bytes used to store one pixel
