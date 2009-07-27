@@ -1,5 +1,5 @@
 #!/bin/sh
-c_version="1.9";            # constant
+c_version="1.10";            # constant
 c_standart="1r.4"           # constant
 c_header_signature="pngfy"; # constant
 n_bpp=3;                    # bytes used to store one pixel
@@ -13,6 +13,8 @@ l_verbose="false";          # "true","false"
 l_bpp_changed="false"       # "true","false"
 l_depth_changed="false"     # "true","false"
 l_remove="false";           # "true","false"
+l_force_header="false";     # "true","false"
+l_quiet="false";            # "true","false"
 s_special_header="";        # user-specified header
 p_encoded_file_name="";     # filename
 p_input_file="";            # filepath
@@ -65,6 +67,16 @@ verb_message() {
 )
 };
 
+error_message() {
+(
+  format="$1";
+  message="$2";
+  if [ "$l_quiet" = "false" ]; then
+    printf "$format" "$message" 1>&2;
+  fi;
+)
+};
+
 
 # parsing args. not using getopts because i want long options. not using getopt
 # because it sucks
@@ -85,7 +97,9 @@ parse_args() {
       ("-i"|"--info")  l_mode="info"; ;;
       ("-z"|"--gzip")  l_gzip="true"; ;;
       ("-v"|"--verbose")  l_verbose="true"; ;;
+      ("-q"|"--quiet")  l_quiet="true"; ;;
       ("-r"|"--remove")  l_remove="true"; ;;
+      ("-k"|"--force-header") l_force_header="true"; ;;
       ("-b"|"-bpp"|"--byte-per-pixel") l_bpp_changed="true"; n_bpp="$(printf "%d" "$2" 2>/dev/null)"; [ "$2" ] && { shift; }; ;;
       ("-t"|"--depth") l_depth_changed="true"; n_depth="$(printf "%d" "$2" 2>/dev/null)"; [ "$2" ] && { shift; }; ;;
       ("-n"|"--name") p_encoded_file_name="$2"; [ "$2" ] && { shift; }; ;;
@@ -105,7 +119,7 @@ parse_args() {
   if [ "$p_input_file" = "-" ]; then
     if [ ! "$l_mode" ]; then
       cat >/dev/null;
-      printf "%s\n" "$0: <stdin>: when reading from stdin, -e or -d must be specified" 1>&2;
+      error_message "%s\n" "$0: <stdin>: when reading from stdin, -e or -d must be specified";
       return 1;
     fi;
     if [ "$l_mode" = "encode" ]; then
@@ -133,7 +147,7 @@ parse_args() {
     fi;
     if [ ! -f "$p_input_file" ]; then
       if [ "$p_input_file" ]; then
-        printf "%s\n" "$0: $p_input_file: no such file" 1>&2;
+        error_message "%s\n" "$0: $p_input_file: no such file";
         return 3;
       else
         l_mode="help";
@@ -148,7 +162,7 @@ parse_args() {
    l_output_stdin="true";
   fi;
   if [ ! -d "$p_temp_dir" ]; then
-    printf "%s\n" "$0: $p_temp_dir: not a directory" 1>&2;
+    error_message "%s\n" "$0: $p_temp_dir: not a directory";
     return 4;
   fi;
   if [ "$l_depth_changed" = "true" ] && [ "$l_bpp_changed" = "false" ]; then
@@ -176,8 +190,10 @@ encoder/decoder for files into png v$c_version for pngfy version $c_standart
     -h  --help                      display this help message
     -i  --info                      show information about file
     -v  --verbose                   display additional information messages
+    -q  --quiet                     do not display anything
     -r  --remove                    remove input file
     -z  --gzip                      pass encoding/decoding files throigh gzip
+    -k  --force-header              do not stop if special header is bad
     -n  --name            <string>  specify encoded file name
     -s  --special-header  <string>  specify special header
     -b  --byte-per-pixel  <int>     bytes per pixel
@@ -195,12 +211,14 @@ parse_header() {
     header_length="$((${#header}+1))";
     header_signature="$(printf "%s" "$1" | sed -n '1p')";
     if [ "$header_signature" != "$c_header_signature" ]; then
-      printf "%s\n" "$0: $input_file: not valid header signature";
+      error_message "%s\n" "$0: $input_file: not valid header signature";
       verb_message "\
 $0: header..........: $header
 $0: header signature: $header_signature
 ";
-      return 1;
+      if [ "$l_force_header" = "false" ]; then
+        return 1;
+      fi
     fi;
 
     header_file_name="$(printf "%s" "$1" | sed -n '2p')";
@@ -209,27 +227,31 @@ $0: header signature: $header_signature
 
     header_is_gzip="$(printf "%s" "$1" | sed -n '4p' | awk '{printf "%d", $1}')";
     if [ "$header_is_gzip" != "0" ] && [ "$header_is_gzip" != "1" ]; then
-    printf "%s\n" "$0: $input_file: not a valid file: gzip flag have wrong value";
+    error_message "%s\n" "$0: $input_file: not a valid file: gzip flag have wrong value";
     verb_message "\
 $0: header..........: $header
 $0: header gzip flag: $header_is_gzip
 ";
-      return 1;
+      if [ "$l_force_header" = "false" ]; then
+        return 1;
+      fi
     fi
 
     header_data_md5="$(printf "%s" "$1" | sed -n '5p')";
     if [ "$(printf "%s" "$header_data_md5" | sed 's/[^a-fA-F0-9]//g' | wc -c | awk '{printf "%d", $1}')" -ne 32 ]; then
-    printf "%s\n" "$0: $input_file: not a valid file: file md5 have wrong value";
+    error_message "%s\n" "$0: $input_file: not a valid file: file md5 have wrong value";
     verb_message "\
 $0: header..........: $header
 $0: header data md5: $header_data_md5
 ";
-      return 1;
+      if [ "$l_force_header" = "false" ]; then
+        return 1;
+      fi
     fi
 
     if [ "$header_is_gzip" = "1" ]; then
       if [ "$header_params_length" -lt 5 ]; then
-        printf "%s\n" "$0: $input_file: not a valid file: header is not properly formed";
+        error_message "%s\n" "$0: $input_file: not a valid file: header is not properly formed";
         verb_message "\
 $0: header..........: $header
 $0: header params: $header_params_length
@@ -237,21 +259,25 @@ $0: header params: $header_params_length
       fi;
       header_gzip_md5="$(printf "%s" "$1" | sed -n '6p')";
       if [ "$(printf "%s" "$header_gzip_md5" | sed 's/[^a-fA-F0-9]//g' | wc -c | awk '{printf "%d", $1}')" -ne 32 ]; then
-      printf "%s\n" "$0: $input_file: not a valid file: gzip md5 have wrong value";
+      error_message "%s\n" "$0: $input_file: not a valid file: gzip md5 have wrong value";
       verb_message "\
 $0: header..........: $header
 $0: header gzip md5: $header_gzip_md5
 ";
+      if [ "$l_force_header" = "false" ]; then
         return 1;
+      fi
       fi;
     else
       if [ "$header_params_length" -gt 4 ]; then
-        printf "%s\n" "$0: $input_file: not a valid file: header is not properly formed";
+        error_message "%s\n" "$0: $input_file: not a valid file: header is not properly formed";
         verb_message "\
 $0: header..........: $header
 $0: header params: $header_params_length
 ";
-        return 1;
+        if [ "$l_force_header" = "false" ]; then
+          return 1;
+        fi
       fi;
     fi;
   };
@@ -260,12 +286,14 @@ $0: header params: $header_params_length
   header_params_length="$(printf "%s" "$header_params" | wc -l)";
 
   if [ "$header_params_length" -lt 4 ] || [ "$header_params_length" -gt 5 ]; then
-    printf "%s\n" "$0: $input_file: not a valid file: header is not properly formed";
+    error_message "%s\n" "$0: $input_file: not a valid file: header is not properly formed";
     verb_message "\
 $0: header..........: $header
 $0: header params: $header_params_length
 ";
-    return 1;
+      if [ "$l_force_header" = "false" ]; then
+        return 1;
+      fi
   fi;
 
   set_fields "$header_params" || {
@@ -318,7 +346,7 @@ encoding file '$verb_input_file_name' to '$verb_output_file_name'
 ";
 
 # header
-  if [ ! "$s_special_header" ]; then
+  if [ ! "$s_special_header" ] && [ "$l_force_header" != "true" ]; then
     if [ "$p_encoded_file_name" ]; then
       header_file_name="$p_encoded_file_name";
     else
@@ -450,7 +478,7 @@ read_header() {
   if [ ! "$header" ]; then
     header_signature="$(dd if="$res_file" ibs=1 count=5 2>/dev/null)";
     if [ "$header_signature" != "$c_header_signature" ]; then
-      printf "%s\n" "$0: $input_file: not valid header signature";
+      error_message "%s\n" "$0: $input_file: not valid header signature";
       verb_message "\
 $0: header..........: $header
 $0: header signature: $header_signature
@@ -466,7 +494,7 @@ $0: header signature: $header_signature
 
   file_length="$(wc -c "$res_file" | awk '{printf "%s", $1}')";
   if [ "$(($file_length - $header_length))" -lt "$(($header_data_length))" ]; then
-    printf "%s\n" "$0: $input_file: not a valid file: too short for data length";
+    error_message "%s\n" "$0: $input_file: not a valid file: too short for data length";
     verb_message "\
 $0: header length.....: $header_length
 $0: header data length: $header_data_length
@@ -508,12 +536,12 @@ decode_file() {
 
   res_file="$p_temp_dir/pngfy-$$-res";
   identify "png:$input_file" 2>/dev/null >/dev/null || {
-    printf "%s\n" "$0: $input_file: not a valid png file";
+    error_message "%s\n" "$0: $input_file: not a valid png file";
     return 1;
   };
 
   convert -depth "$n_depth" "png:$input_file" "rgb:$res_file" || {
-    printf "%s\n" "$0: $input_file: not a valid png file";
+    error_message "%s\n" "$0: $input_file: not a valid png file";
     return 1;
   };
   
@@ -568,7 +596,7 @@ $verb_info_message
   if [ "$header_is_gzip" = "1" ]; then
     check_md5="$(md5sum "$tmp_file" | awk '{printf "%s", $1}')";
     if [ "$check_md5" != "$header_gzip_md5" ]; then
-      printf "%s\n" "$0: WARNING: '$input_file': gzip md5 does not match" 1>&2;
+      error_message "%s\n" "$0: WARNING: '$input_file': gzip md5 does not match";
     fi;
     cat "$tmp_file" | gzip -d > "$tmp_gzip_file";
     rm -f "$tmp_file";
@@ -577,7 +605,7 @@ $verb_info_message
 
   check_md5="$(md5sum "$tmp_file" | awk '{printf "%s", $1}')";
   if [ "$check_md5" != "$header_data_md5" ]; then
-    printf "%s\n" "$0: WARNING: '$input_file': file md5 does not match" 1>&2;
+    error_message "%s\n" "$0: WARNING: '$input_file': file md5 does not match";
   fi;
 
   if [ "$l_output_stdin" = "true" ]; then
@@ -617,12 +645,12 @@ show_info_file() {
   res_file="$p_temp_dir/pngfy-$$-res";
 
   identify "png:$input_file" 2>/dev/null >/dev/null || {
-    printf "%s\n" "$0: $input_file: not a valid png file";
+    error_message "%s\n" "$0: $input_file: not a valid png file";
     return 1;
   };
 
   convert -depth "$n_depth" "png:$input_file" "rgb:$res_file" || {
-    printf "%s\n" "$0: $input_file: not a valid png file";
+    error_message "%s\n" "$0: $input_file: not a valid png file";
     return 1;
   };
 
@@ -791,7 +819,7 @@ $verb_info_message
   if [ "$header_is_gzip" = "1" ]; then
     check_md5="$(md5sum "$tmp_file" | awk '{printf "%s", $1}')";
     if [ "$check_md5" != "$header_gzip_md5" ]; then
-      printf "%s\n" "$0: WARNING: '$input_file': gzip md5 does not match" 1>&2;
+      error_message "%s\n" "$0: WARNING: '$input_file': gzip md5 does not match";
     fi;
     cat "$tmp_file" | gzip -d > "$tmp_gzip_file";
     rm -f "$tmp_file";
@@ -800,7 +828,7 @@ $verb_info_message
 
   check_md5="$(md5sum "$tmp_file" | awk '{printf "%s", $1}')";
   if [ "$check_md5" != "$header_data_md5" ]; then
-    printf "%s\n" "$0: WARNING: '$input_file': file md5 does not match" 1>&2;
+    error_message "%s\n" "$0: WARNING: '$input_file': file md5 does not match";
   fi;
 
   if [ "$l_output_stdin" = "true" ]; then
