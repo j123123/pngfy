@@ -290,7 +290,7 @@ int encode()
     if (header!=NULL) free(header);
     int i;
     int datasize = len+hlen+1;
-    for (i = datasize;i < datasize+padding;i++)
+    for (i = datasize;i < datasize+padding-1;i++)
     {
         rgbdata[i] = '\0';
     }
