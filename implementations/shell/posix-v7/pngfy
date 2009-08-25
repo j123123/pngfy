@@ -1,5 +1,5 @@
 #!/bin/sh
-c_version="1.10";           # constant
+c_version="1.11";           # constant
 c_standart="1r.4"           # constant
 c_header_signature="pngfy"; # constant
 n_bpp=3;                    # bytes used to store one pixel
@@ -387,7 +387,7 @@ encoding file '$verb_input_file_name' to '$verb_output_file_name'
 
 # tmp
 
-  printf "%s\x00" "$header" | cat - "$input_file" > "$tmp_file";
+  printf "%s\0" "$header" | cat - "$input_file" > "$tmp_file";
 
   tmp_length="$(wc -c "$tmp_file" | awk '{printf "%s", $1}')";
 
@@ -485,7 +485,7 @@ $0: header signature: $header_signature
 ";
       return 1;
     fi;
-    header="$(cat "$res_file" | ( read header; printf "%s" "$header"; ))";
+    header="$(cat "$res_file" | sed 's/\x0.*//g' | ( read header; printf "%s" "$header"; ))";
   fi;
 
   parse_header "$header" || {
