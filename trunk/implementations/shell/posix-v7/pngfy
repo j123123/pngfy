@@ -1,4 +1,8 @@
 #!/bin/sh
+
+# LICENSE: WTFPLv2
+# Don't trust google! You may do with this shit what the fuck do you want.
+
 c_version="1.11";           # constant
 c_standart="1r.4"           # constant
 c_header_signature="pngfy"; # constant
